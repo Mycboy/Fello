@@ -439,8 +439,59 @@ h1, h2, h3, h4, h5, h6 {
   scrollbar-width: none;
 }
 
+/* Mobile User Trigger & Profile Modal */
+.mobile-user-trigger {
+  display: none !important;
+}
+
+.user-profile-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 5, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 16px;
+  animation: fadeIn 0.18s ease-out;
+}
+
+.user-profile-modal {
+  width: 100%;
+  max-width: 380px;
+  background: #10131f;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 20px 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Mobile Screens Overhaul (<= 640px) */
 @media (max-width: 640px) {
+  /* Minimal Navbar on Mobile */
+  .mobile-user-trigger {
+    display: flex !important;
+  }
+
+  .desktop-nav-controls {
+    display: none !important;
+  }
+
+  .navbar-desktop-logo {
+    display: none !important;
+  }
+
+  .navbar-brand-subtitle {
+    display: none !important;
+  }
+
+  .app-navbar {
+    padding: 8px 14px !important;
+  }
+
   .chat-page-root {
     height: calc(100dvh - 54px);
     padding: 6px 8px 8px;
@@ -480,21 +531,10 @@ h1, h2, h3, h4, h5, h6 {
     gap: 14px;
   }
 
-  .app-navbar {
-    padding: 8px 12px !important;
-  }
-
-  .navbar-brand-subtitle {
-    display: none !important;
-  }
-
-  .navbar-user-subtitle {
-    display: none !important;
-  }
-
   .glass-panel {
     border-radius: 14px;
   }
 }
+
 
 
