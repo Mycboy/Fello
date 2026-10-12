@@ -176,11 +176,13 @@ export default function ChatPage({
   onLeaveChat, 
   partnerTyping, 
   partnerLeft,
-  onTyping 
+  onTyping,
+  onReactMessage 
 }) {
   const [inputText, setInputText] = useState('');
   const [showIcebreakers, setShowIcebreakers] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [selectedMsgReactionId, setSelectedMsgReactionId] = useState(null);
 
   // Photo & Lightbox State
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState(null);
@@ -381,15 +383,10 @@ export default function ChatPage({
   };
 
   return (
-    <div style={{
-      maxWidth: '1000px',
-      margin: '0 auto',
-      height: 'calc(100vh - 72px)',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '16px 20px 20px',
-      position: 'relative'
-    }}>
+    <div 
+      className="chat-page-root"
+      onClick={() => setSelectedMsgReactionId(null)}
+    >
       {/* Hidden File Input for Photos */}
       <input
         type="file"
@@ -400,99 +397,104 @@ export default function ChatPage({
       />
 
       {/* Top Stranger Info & Control Bar */}
-      <div className="glass-panel" style={{
-        padding: '14px 22px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '12px',
-        marginBottom: '14px',
-        borderRadius: '16px'
-      }}>
+      <div className="chat-top-header glass-panel">
         {/* Stranger Profile Meta */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
           <div style={{
             position: 'relative',
-            fontSize: '24px',
-            width: '44px',
-            height: '44px',
+            fontSize: '22px',
+            width: '38px',
+            height: '38px',
             borderRadius: '12px',
             background: 'rgba(6,182,212,0.18)',
             border: '1px solid rgba(6,182,212,0.3)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}>
             {partner?.avatar || '👤'}
             <span style={{
               position: 'absolute',
-              bottom: '-2px',
-              right: '-2px',
-              width: '10px',
-              height: '10px',
+              bottom: '-1px',
+              right: '-1px',
+              width: '9px',
+              height: '9px',
               borderRadius: '50%',
               backgroundColor: partnerLeft ? '#f43f5e' : '#10b981',
               border: '2px solid #07080d'
             }} />
           </div>
 
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontWeight: '700', fontSize: '16px', color: '#fff' }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ 
+                fontWeight: '700', 
+                fontSize: '15px', 
+                color: '#fff',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
                 {partner?.nickname || 'Anonymous Stranger'}
               </span>
               <span style={{
-                fontSize: '11px',
-                padding: '2px 8px',
-                borderRadius: '6px',
+                fontSize: '10px',
+                padding: '2px 6px',
+                borderRadius: '5px',
                 background: partnerLeft ? 'rgba(244,63,94,0.15)' : 'rgba(16,185,129,0.15)',
                 color: partnerLeft ? '#fb7185' : '#34d399',
-                fontWeight: '600'
+                fontWeight: '700',
+                fontFamily: 'var(--font-mono)',
+                whiteSpace: 'nowrap'
               }}>
-                {partnerLeft ? 'DISCONNECTED' : 'ENCRYPTED 1-ON-1'}
+                {partnerLeft ? 'DISCONNECTED' : 'ENCRYPTED'}
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: partnerLeft ? '#f43f5e' : '#10b981', display: 'inline-block' }}></span>
-              <span>1-on-1 Anonymous Session • Photos & Audio Enabled</span>
+            <div className="chat-header-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#94a3b8', marginTop: '1px' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: partnerLeft ? '#f43f5e' : '#10b981', display: 'inline-block' }}></span>
+              <span>1-on-1 Anonymous Session • Photos & Audio</span>
             </div>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="chat-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
           <button
             type="button"
             disabled={nextCooldown > 0}
             onClick={onNextStranger}
             className="btn-primary"
             style={{
-              padding: '8px 16px',
-              fontSize: '13px',
-              borderRadius: '10px',
+              padding: '7px 12px',
+              fontSize: '12.5px',
+              borderRadius: '9px',
               background: nextCooldown > 0 
                 ? 'rgba(255,255,255,0.08)' 
                 : 'linear-gradient(135deg, #06b6d4, #3b82f6)',
               border: nextCooldown > 0 ? '1px solid rgba(255,255,255,0.1)' : 'none',
               color: nextCooldown > 0 ? '#94a3b8' : '#ffffff',
               cursor: nextCooldown > 0 ? 'not-allowed' : 'pointer',
-              opacity: nextCooldown > 0 ? 0.75 : 1,
+              opacity: nextCooldown > 0 ? 0.8 : 1,
               boxShadow: nextCooldown > 0 ? 'none' : '0 4px 15px rgba(6,182,212,0.3)',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              whiteSpace: 'nowrap'
             }}
             title={nextCooldown > 0 ? `Please stay in chat for at least ${nextCooldown}s before skipping` : "Find Next Stranger"}
           >
             {nextCooldown > 0 ? (
               <>
-                <Clock size={14} />
+                <Clock size={13} />
                 <span>Next ({nextCooldown}s)</span>
               </>
             ) : (
               <>
-                <RotateCw size={15} />
-                <span>Next Stranger</span>
+                <RotateCw size={13} />
+                <span>Next<span className="chat-action-btn-text"> Stranger</span></span>
               </>
             )}
           </button>
@@ -501,10 +503,18 @@ export default function ChatPage({
             type="button"
             onClick={() => setShowExitConfirm(true)}
             className="btn-danger"
-            style={{ padding: '8px 14px', fontSize: '13px', borderRadius: '10px' }}
+            style={{ 
+              padding: '7px 12px', 
+              fontSize: '12.5px', 
+              borderRadius: '9px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              whiteSpace: 'nowrap'
+            }}
           >
-            <LogOut size={15} />
-            <span>End Chat</span>
+            <LogOut size={13} />
+            <span><span className="chat-action-btn-text">End </span>Chat</span>
           </button>
         </div>
       </div>
@@ -687,34 +697,25 @@ export default function ChatPage({
       )}
 
       {/* Main Message Stream Container */}
-      <div className="glass-panel" style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '14px',
-        borderRadius: '16px',
-        position: 'relative',
-        minHeight: '260px'
-      }}>
+      {/* Main Message Stream Container */}
+      <div className="chat-message-stream glass-panel">
         {/* System Encryption Header Notice */}
         <div style={{
           textAlign: 'center',
-          margin: '4px auto 16px',
+          margin: '2px auto 12px',
           maxWidth: '520px',
-          padding: '10px 18px',
+          padding: '8px 14px',
           borderRadius: '12px',
           background: 'rgba(255,255,255,0.03)',
           border: '1px solid rgba(255,255,255,0.06)',
-          fontSize: '12px',
+          fontSize: '11.5px',
           color: '#94a3b8',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '8px'
+          gap: '7px'
         }}>
-          <ShieldCheck size={16} color="#10b981" />
+          <ShieldCheck size={15} color="#10b981" />
           <span>
             Connected anonymously. Messages, photos, and voice notes vanish forever when either leaves.
           </span>
@@ -723,6 +724,8 @@ export default function ChatPage({
         {/* Message Bubbles */}
         {messages.map((msg) => {
           const isMe = msg.isMe;
+          const isSelected = selectedMsgReactionId === msg.id;
+
           return (
             <div
               key={msg.id}
@@ -731,12 +734,13 @@ export default function ChatPage({
                 justifyContent: isMe ? 'flex-end' : 'flex-start',
                 alignItems: 'flex-end',
                 gap: '8px',
-                width: '100%'
+                width: '100%',
+                position: 'relative'
               }}
             >
               {!isMe && (
                 <div style={{
-                  fontSize: '16px',
+                  fontSize: '15px',
                   width: '28px',
                   height: '28px',
                   borderRadius: '50%',
@@ -752,31 +756,69 @@ export default function ChatPage({
               )}
 
               <div style={{
-                maxWidth: '75%',
+                maxWidth: '82%',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: isMe ? 'flex-end' : 'flex-start'
+                alignItems: isMe ? 'flex-end' : 'flex-start',
+                position: 'relative'
               }}>
-                <div style={{
-                  padding: msg.type === 'image' ? '6px' : '11px 16px',
-                  borderRadius: isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                  background: isMe 
-                    ? 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)' 
-                    : 'rgba(25, 30, 45, 0.9)',
-                  border: isMe ? 'none' : '1px solid rgba(255,255,255,0.08)',
-                  color: '#ffffff',
-                  fontSize: '14.5px',
-                  lineHeight: '1.45',
-                  wordBreak: 'break-word',
-                  boxShadow: isMe ? '0 4px 14px rgba(139,92,246,0.25)' : '0 2px 8px rgba(0,0,0,0.2)',
-                  overflow: 'hidden'
-                }}>
+                {/* Floating Reaction Picker Popover */}
+                {isSelected && (
+                  <div 
+                    className={`message-reaction-picker ${isMe ? '' : 'partner-bubble'}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {['❤️', '🔥', '😂', '💀', '👍', '😮'].map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onReactMessage?.(msg.id, emoji);
+                          setSelectedMsgReactionId(null);
+                        }}
+                        title={`React with ${emoji}`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Bubble Container */}
+                <div 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMsgReactionId(isSelected ? null : msg.id);
+                  }}
+                  title="Click or tap to react"
+                  style={{
+                    padding: msg.type === 'image' ? '6px' : '10px 14px',
+                    borderRadius: isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                    background: isMe 
+                      ? 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)' 
+                      : 'rgba(25, 30, 45, 0.92)',
+                    border: isMe ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                    color: '#ffffff',
+                    fontSize: '14px',
+                    lineHeight: '1.45',
+                    wordBreak: 'break-word',
+                    boxShadow: isMe ? '0 4px 14px rgba(139,92,246,0.25)' : '0 2px 8px rgba(0,0,0,0.2)',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    transition: 'transform 0.1s ease'
+                  }}
+                >
                   {/* Image Message Bubble */}
                   {msg.type === 'image' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <div 
-                        style={{ position: 'relative', cursor: 'pointer', borderRadius: '14px', overflow: 'hidden' }}
-                        onClick={() => setActiveLightboxImg(msg.mediaUrl)}
+                        style={{ position: 'relative', cursor: 'pointer', borderRadius: '12px', overflow: 'hidden' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveLightboxImg(msg.mediaUrl);
+                        }}
                         title="Click to view full photo"
                       >
                         <img
@@ -785,7 +827,7 @@ export default function ChatPage({
                           style={{
                             maxWidth: '100%',
                             maxHeight: '260px',
-                            borderRadius: '12px',
+                            borderRadius: '10px',
                             display: 'block',
                             objectFit: 'cover'
                           }}
@@ -829,14 +871,52 @@ export default function ChatPage({
                   )}
                 </div>
 
+                {/* Attached Reaction Badges */}
+                {msg.reactions && msg.reactions.length > 0 && (
+                  <div className="bubble-reactions-tray">
+                    {Array.from(new Set(msg.reactions)).map((emoji, idx) => {
+                      const count = msg.reactions.filter((r) => r === emoji).length;
+                      return (
+                        <span
+                          key={idx}
+                          className="reaction-badge"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onReactMessage?.(msg.id, emoji);
+                          }}
+                          title={`Reacted ${count} time(s)`}
+                        >
+                          {emoji} {count > 1 ? count : ''}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Timestamp & Delivery Receipt */}
                 <div style={{
                   fontSize: '10px',
                   color: '#64748b',
-                  marginTop: '4px',
+                  marginTop: '3px',
                   paddingLeft: '4px',
-                  paddingRight: '4px'
+                  paddingRight: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
                 }}>
-                  {formatTime(msg.timestamp)}
+                  <span>{formatTime(msg.timestamp)}</span>
+                  {isMe && (
+                    <span 
+                      style={{ 
+                        fontSize: '11px', 
+                        color: msg.delivered ? '#38bdf8' : '#94a3b8',
+                        fontWeight: msg.delivered ? '700' : '500'
+                      }}
+                      title={msg.delivered ? 'Delivered to partner' : 'Sent'}
+                    >
+                      {msg.delivered ? '✓✓' : '✓'}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -932,7 +1012,7 @@ export default function ChatPage({
           gap: '8px'
         }}>
           {/* Reaction Tray */}
-          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
+          <div className="no-scrollbar" style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
             {QUICK_REACTIONS.map((emoji) => (
               <button
                 key={emoji}
@@ -945,7 +1025,8 @@ export default function ChatPage({
                   padding: '4px 8px',
                   fontSize: '14px',
                   cursor: 'pointer',
-                  transition: 'transform 0.1s'
+                  transition: 'transform 0.1s',
+                  flexShrink: 0
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -1120,7 +1201,7 @@ export default function ChatPage({
           </div>
         ) : (
           /* STANDARD INPUT FORM WITH PHOTO & MIC BUTTONS */
-          <form onSubmit={handleSendText} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <form onSubmit={handleSendText} className="chat-composer-box" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             {/* Photo Attachment Button */}
             <button
               type="button"
@@ -1130,13 +1211,14 @@ export default function ChatPage({
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 color: '#38bdf8',
-                borderRadius: '14px',
-                padding: '14px 16px',
+                borderRadius: '13px',
+                padding: '11px 13px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(6, 182, 212, 0.15)';
@@ -1147,7 +1229,7 @@ export default function ChatPage({
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
               }}
             >
-              <ImageIcon size={19} />
+              <ImageIcon size={18} />
             </button>
 
             {/* Text Input */}
@@ -1158,16 +1240,16 @@ export default function ChatPage({
                 value={inputText}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Type a message, attach photo, or send voice note..."
+                placeholder="Type a message or share..."
                 maxLength={1000}
                 style={{
                   width: '100%',
-                  padding: '14px 18px',
-                  borderRadius: '14px',
+                  padding: '11px 16px',
+                  borderRadius: '13px',
                   background: 'rgba(18, 20, 30, 0.9)',
                   border: '1px solid rgba(255,255,255,0.12)',
                   color: '#ffffff',
-                  fontSize: '14.5px',
+                  fontSize: '14px',
                   fontFamily: 'var(--font-body)',
                   outline: 'none',
                   boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
@@ -1187,13 +1269,14 @@ export default function ChatPage({
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 color: '#c084fc',
-                borderRadius: '14px',
-                padding: '14px 16px',
+                borderRadius: '13px',
+                padding: '11px 13px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)';
@@ -1204,7 +1287,7 @@ export default function ChatPage({
                 e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
               }}
             >
-              <Mic size={19} />
+              <Mic size={18} />
             </button>
 
             {/* Text Send Button */}
@@ -1213,12 +1296,13 @@ export default function ChatPage({
               disabled={!inputText.trim()}
               className="btn-primary"
               style={{
-                padding: '14px 22px',
-                borderRadius: '14px',
-                fontSize: '14px'
+                padding: '11px 18px',
+                borderRadius: '13px',
+                fontSize: '14px',
+                flexShrink: 0
               }}
             >
-              <Send size={17} />
+              <Send size={16} />
             </button>
           </form>
         )

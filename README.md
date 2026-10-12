@@ -106,8 +106,15 @@ sequenceDiagram
 - **FIFO Queue Matching Engine**: Sockets join a thread-safe in-memory queue. As soon as two active peers are detected, the server extracts both, pairs them into a isolated room identifier (`room_<timestamp>_<hash>`), and links them via Socket.IO room namespaces.
 - **Pure Random Matching**: Free of arbitrary tag filtering, demographic tracking, or algorithmic prejudice. Pure serendipity.
 
-### 2. Multi-Format Real-Time Messaging
+### 2. Multi-Format Real-Time Messaging & Interactions
 - **Instant Messaging**: Sub-50ms message latency routed directly through private socket room namespaces.
+- **💬 Message Reactions (Tap / Long-Press)**:
+  - Tapping or clicking any message bubble opens a floating glass reaction picker (`❤️`, `🔥`, `😂`, `💀`, `👍`, `😮`).
+  - Attached reactions display in a grouped badge tray on the corner of the message bubble with instant synchronization across both peers.
+- **✓✓ Double Checkmark Delivery Receipts**:
+  - Sent messages show single tick (`✓`) upon server relay, and double checkmarks (`✓✓` in cyan) when delivered to the stranger's active device.
+- **📳 Mobile Tactile Haptic Feedback**:
+  - Native `navigator.vibrate` integration provides subtle physical feedback when sending messages, receiving chats, tapping reactions, or finding a stranger match.
 - **📷 Photo Sharing**:
   - Image attachments with client-side canvas compression to ensure instant transmission without overloading memory buffers.
   - Image preview with caption support before sending.

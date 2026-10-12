@@ -3,12 +3,12 @@ import { Ghost, ShieldCheck, Volume2, VolumeX, LogOut, Radio } from 'lucide-reac
 
 export default function Navbar({ user, onLogout, soundMuted, onToggleSound, currentView, isConnected = true }) {
   return (
-    <header className="w-full border-b border-[rgba(255,255,255,0.08)] bg-[rgba(10,12,18,0.8)] backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3.5 flex items-center justify-between"
+    <header className="app-navbar"
       style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '14px 24px',
+        padding: '12px 20px',
         borderBottom: '1px solid rgba(255,255,255,0.08)',
         background: 'rgba(8,10,16,0.85)',
         backdropFilter: 'blur(16px)',
@@ -17,24 +17,25 @@ export default function Navbar({ user, onLogout, soundMuted, onToggleSound, curr
         zIndex: 50
       }}>
       {/* Brand */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
         <div style={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '12px',
+          width: '36px',
+          height: '36px',
+          borderRadius: '10px',
           background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 0 20px rgba(139,92,246,0.4)'
+          boxShadow: '0 0 20px rgba(139,92,246,0.4)',
+          flexShrink: 0
         }}>
-          <Ghost size={22} color="#ffffff" />
+          <Ghost size={20} color="#ffffff" />
         </div>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{
               fontFamily: 'var(--font-heading)',
-              fontSize: '22px',
+              fontSize: '20px',
               fontWeight: '800',
               letterSpacing: '-0.03em',
               color: '#ffffff'
@@ -42,8 +43,8 @@ export default function Navbar({ user, onLogout, soundMuted, onToggleSound, curr
               FELLO
             </span>
             <span style={{
-              fontSize: '10px',
-              padding: '2px 6px',
+              fontSize: '9px',
+              padding: '2px 5px',
               borderRadius: '4px',
               background: 'rgba(139,92,246,0.2)',
               color: '#c084fc',
@@ -51,10 +52,10 @@ export default function Navbar({ user, onLogout, soundMuted, onToggleSound, curr
               fontFamily: 'var(--font-mono)',
               border: '1px solid rgba(139,92,246,0.3)'
             }}>
-              ANONYMOUS
+              ANON
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
+          <div className="navbar-brand-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
             <span style={{
               width: '6px',
               height: '6px',
@@ -121,7 +122,7 @@ export default function Navbar({ user, onLogout, soundMuted, onToggleSound, curr
               <div style={{ fontSize: '13px', fontWeight: '700', color: '#fff' }}>
                 {user.nickname}
               </div>
-              <div style={{ fontSize: '10px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div className="navbar-user-subtitle" style={{ fontSize: '10px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <ShieldCheck size={11} color="#34d399" />
                 {user.isGuest ? 'Ephemeral Alias' : 'Verified'}
               </div>

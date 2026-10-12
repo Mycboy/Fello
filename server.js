@@ -391,7 +391,26 @@ io.on('connection', (socket) => {
       timestamp: Date.now()
     };
 
+    // Acknowledge back to sender with confirmed server message ID
+    socket.emit('message_ack', {
+      id: messageData.id,
+      timestamp: messageData.timestamp
+    });
+
+    // Relay to partner
     socket.to(roomId).emit('receive_message', messageData);
+  });
+
+  // Message delivered receipt (partner received the message)
+  socket.on('message_delivered', ({ roomId, messageId }) => {
+    if (!roomId || !messageId) return;
+    socket.to(roomId).emit('partner_delivered', { messageId });
+  });
+
+  // Message reaction (emoji reaction attached to message bubble)
+  socket.on('message_reaction', ({ roomId, messageId, reaction }) => {
+    if (!roomId || !messageId || !reaction) return;
+    socket.to(roomId).emit('receive_reaction', { messageId, reaction });
   });
 
   // Typing indicator (throttled to at most once per 400ms)

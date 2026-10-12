@@ -5,7 +5,7 @@ import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import ChatPage from './pages/ChatPage';
 import { socket } from './utils/socket';
-import { sound } from './utils/sound';
+import { sound, triggerHaptic } from './utils/sound';
 
 export default function App() {
   // Navigation & User State
@@ -79,8 +79,9 @@ export default function App() {
       setIsSearching(false);
       setSearchTime(0);
 
-      // Play audio notification
+      // Play audio notification & tactile haptic
       sound.playMatchFound();
+      triggerHaptic([40, 60, 40]);
 
       // Configure room
       setCurrentRoom(roomId);
@@ -96,6 +97,8 @@ export default function App() {
     // Socket Event: Incoming Message
     socket.on('receive_message', (msg) => {
       sound.playMessageReceived();
+      triggerHaptic([20]);
+
       setMessages((prev) => [
         ...prev,
         {
@@ -105,9 +108,47 @@ export default function App() {
           mediaUrl: msg.mediaUrl,
           duration: msg.duration,
           timestamp: msg.timestamp,
-          isMe: false
+          isMe: false,
+          reactions: []
         }
       ]);
+    });
+
+    // Socket Event: Partner Delivered receipt
+    socket.on('partner_delivered', ({ messageId }) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === messageId || m.serverId === messageId ? { ...m, delivered: true } : m))
+      );
+    });
+
+    // Socket Event: Server Message Ack
+    socket.on('message_ack', ({ id }) => {
+      setMessages((prev) => {
+        const lastMe = [...prev].reverse().find((m) => m.isMe && !m.serverId);
+        if (lastMe) {
+          return prev.map((m) => (m.id === lastMe.id ? { ...m, serverId: id } : m));
+        }
+        return prev;
+      });
+    });
+
+    // Socket Event: Reaction to message
+    socket.on('receive_reaction', ({ messageId, reaction }) => {
+      triggerHaptic(15);
+      setMessages((prev) =>
+        prev.map((m) => {
+          if (m.id === messageId || m.serverId === messageId) {
+            const current = m.reactions || [];
+            return {
+              ...m,
+              reactions: current.includes(reaction)
+                ? current.filter((r) => r !== reaction)
+                : [...current, reaction]
+            };
+          }
+          return m;
+        })
+      );
     });
 
     // Socket Event: Partner Typing Status
@@ -118,6 +159,7 @@ export default function App() {
     // Socket Event: Partner Left Chat
     socket.on('partner_left', () => {
       sound.playDisconnect();
+      triggerHaptic([30, 50]);
       setPartnerLeft(true);
       setPartnerTyping(false);
     });
@@ -129,6 +171,9 @@ export default function App() {
       socket.off('rate_limited');
       socket.off('chat_start');
       socket.off('receive_message');
+      socket.off('partner_delivered');
+      socket.off('message_ack');
+      socket.off('receive_reaction');
       socket.off('partner_typing');
       socket.off('partner_left');
     };
@@ -243,17 +288,48 @@ export default function App() {
       mediaUrl,
       duration,
       timestamp: Date.now(),
-      isMe: true
+      isMe: true,
+      delivered: false,
+      reactions: []
     };
 
     setMessages((prev) => [...prev, msgObj]);
     sound.playMessageSent();
+    triggerHaptic(12);
+
     socket.emit('send_message', {
       roomId: currentRoom,
       type,
       text: text ? text.trim() : '',
       mediaUrl,
       duration
+    });
+  };
+
+  // Message Reaction Handler
+  const handleReaction = (messageId, reaction) => {
+    if (!currentRoom) return;
+    triggerHaptic(15);
+
+    setMessages((prev) =>
+      prev.map((m) => {
+        if (m.id === messageId || m.serverId === messageId) {
+          const current = m.reactions || [];
+          return {
+            ...m,
+            reactions: current.includes(reaction)
+              ? current.filter((r) => r !== reaction)
+              : [...current, reaction]
+          };
+        }
+        return m;
+      })
+    );
+
+    socket.emit('message_reaction', {
+      roomId: currentRoom,
+      messageId,
+      reaction
     });
   };
 
@@ -288,7 +364,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* App Navbar */}
       <Navbar
         user={currentUser}
@@ -327,7 +403,7 @@ export default function App() {
       )}
 
       {/* Pages Container */}
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {currentView === 'auth' && (
           <AuthPage onAuthenticate={handleAuthenticate} />
         )}
@@ -357,6 +433,7 @@ export default function App() {
             partnerTyping={partnerTyping}
             partnerLeft={partnerLeft}
             onTyping={handleTyping}
+            onReactMessage={handleReaction}
           />
         )}
       </main>

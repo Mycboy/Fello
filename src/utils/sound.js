@@ -179,4 +179,14 @@ class SoundFX {
   }
 }
 
+// Mobile Tactile Haptic Feedback
+export function triggerHaptic(pattern = 15) {
+  if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(pattern);
+    } catch {}
+  }
+}
+
 export const sound = new SoundFX();
+
