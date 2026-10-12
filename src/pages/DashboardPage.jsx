@@ -30,7 +30,7 @@ export default function DashboardPage({
   const [editNickname, setEditNickname] = useState(user.nickname || '');
   const [editAvatar, setEditAvatar] = useState(user.avatar || '👻');
 
-  const AVATARS = ['👻', '🦊', '⚡', '🥷', '👾', '🌌', '🎭', '🔮', '🐱‍👤', '🛡️', '🌙', '🪐'];
+  const AVATARS = ['👻', '🦊', '⚡', '🥷', '👾', '🌌', '🎭', '🔮', '🐺', '🛡️', '🌙', '🪐'];
 
   const handleSaveProfile = (e) => {
     e.preventDefault();

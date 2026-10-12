@@ -20,7 +20,7 @@ const RANDOM_NICKNAMES = [
   'ZenithSeeker', 'GlitchSurfer', 'HyperRogue', 'VelvetShade'
 ];
 
-const AVATAR_OPTIONS = ['👻', '🦊', '⚡', '🥷', '👾', '🌌', '🎭', '🔮', '🐱‍👤', '🛡️', '🌙', '🪐'];
+const AVATAR_OPTIONS = ['👻', '🦊', '⚡', '🥷', '👾', '🌌', '🎭', '🔮', '🐺', '🛡️', '🌙', '🪐'];
 
 export default function AuthPage({ onAuthenticate }) {
   const [authMode, setAuthMode] = useState('anonymous'); // 'anonymous' | 'login' | 'signup'
