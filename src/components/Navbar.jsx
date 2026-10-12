@@ -1,7 +1,7 @@
 import React from 'react';
 import { Ghost, ShieldCheck, Volume2, VolumeX, LogOut, Radio } from 'lucide-react';
 
-export default function Navbar({ user, onLogout, soundMuted, onToggleSound, currentView }) {
+export default function Navbar({ user, onLogout, soundMuted, onToggleSound, currentView, isConnected = true }) {
   return (
     <header className="w-full border-b border-[rgba(255,255,255,0.08)] bg-[rgba(10,12,18,0.8)] backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3.5 flex items-center justify-between"
       style={{
@@ -55,8 +55,17 @@ export default function Navbar({ user, onLogout, soundMuted, onToggleSound, curr
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }}></span>
-            <span>Zero-Logs P2P Routing</span>
+            <span style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: isConnected ? '#10b981' : '#f59e0b',
+              boxShadow: isConnected ? '0 0 8px #10b981' : '0 0 8px #f59e0b',
+              display: 'inline-block'
+            }} />
+            <span style={{ color: isConnected ? '#94a3b8' : '#fbbf24' }}>
+              {isConnected ? 'Zero-Logs P2P Routing' : 'Connecting to server... (Waking up)'}
+            </span>
           </div>
         </div>
       </div>

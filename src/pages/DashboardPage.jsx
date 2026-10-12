@@ -233,12 +233,7 @@ export default function DashboardPage({
       )}
 
       {/* Main Grid: Matchmaking Radar Terminal */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.2fr)',
-        gap: '24px',
-        alignItems: 'stretch'
-      }}>
+      <div className="dashboard-main-grid">
         {/* Left Column: Big Radar & Search Terminal */}
         <div className="glass-panel" style={{
           padding: '36px 30px',

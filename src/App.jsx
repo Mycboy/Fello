@@ -21,6 +21,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState('auth'); // 'auth' | 'dashboard' | 'chat'
   const [soundMuted, setSoundMuted] = useState(false);
   const [rateLimitNotice, setRateLimitNotice] = useState(null);
+  const [isConnected, setIsConnected] = useState(socket.connected);
   const rateLimitTimeoutRef = useRef(null);
 
   // Matchmaking & Chat State
@@ -44,6 +45,12 @@ export default function App() {
   // Socket Connection and Global Listeners
   useEffect(() => {
     socket.connect();
+
+    const handleConnect = () => setIsConnected(true);
+    const handleDisconnect = () => setIsConnected(false);
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
 
     // Fetch initial stats
     fetch('/api/stats')
@@ -116,6 +123,8 @@ export default function App() {
     });
 
     return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
       socket.off('stats_update');
       socket.off('rate_limited');
       socket.off('chat_start');
@@ -287,6 +296,7 @@ export default function App() {
         soundMuted={soundMuted}
         onToggleSound={handleToggleSound}
         currentView={currentView}
+        isConnected={isConnected}
       />
 
       {/* Floating Rate Limit Alert */}

@@ -141,6 +141,13 @@ function matchUsers() {
       continue;
     }
 
+    // Guard against race conditions where a socket is already paired
+    if (userRoomMap.has(u1.socketId) || userRoomMap.has(u2.socketId)) {
+      if (!userRoomMap.has(u1.socketId)) waitingQueue.unshift(u1);
+      if (!userRoomMap.has(u2.socketId)) waitingQueue.unshift(u2);
+      continue;
+    }
+
     const roomId = `room_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     s1.join(roomId);
     s2.join(roomId);
@@ -307,11 +314,12 @@ io.on('connection', (socket) => {
     }, 800);
   });
 
-  // Send message to partner (supports text, photo, audio voice notes)
+  // Send message to partner (supports text, photo, audio voice notes with strict validation)
   socket.on('send_message', ({ roomId, text, type = 'text', mediaUrl, duration }) => {
     if (!roomId) return;
-    if (type === 'text' && (!text || !text.trim())) return;
-    if ((type === 'image' || type === 'audio') && !mediaUrl) return;
+    const cleanText = typeof text === 'string' ? text.trim().slice(0, 2000) : '';
+    if (type === 'text' && !cleanText) return;
+    if ((type === 'image' || type === 'audio') && (!mediaUrl || typeof mediaUrl !== 'string' || mediaUrl.length > 15000000)) return;
 
     // Check message flood limit (max 5 per 3s)
     if (!checkMessageRateLimit(socket.id)) {
@@ -377,8 +385,8 @@ io.on('connection', (socket) => {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       senderSocketId: socket.id,
       type: type || 'text',
-      text: text ? text.trim() : '',
-      mediaUrl: mediaUrl || null,
+      text: cleanText,
+      mediaUrl: (type === 'image' || type === 'audio') ? mediaUrl : null,
       duration: duration || null,
       timestamp: Date.now()
     };

@@ -304,3 +304,27 @@ h1, h2, h3, h4, h5, h6 {
   padding: 24px;
   animation: fadeIn 0.2s ease-out;
 }
+
+/* Responsive Dashboard Layout */
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+@media (max-width: 860px) {
+  .dashboard-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-main-grid {
+    gap: 16px;
+  }
+  .glass-panel {
+    border-radius: 16px;
+  }
+}
+
