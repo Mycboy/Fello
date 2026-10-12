@@ -476,8 +476,8 @@ function handleLeaveRoom(leavingSocketId, roomId) {
 // Serve static assets from Vite build in production
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Catch-all route for SPA client-side routing
-app.get('*', (req, res) => {
+// Catch-all route for SPA client-side routing (Express 5 compatible)
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
