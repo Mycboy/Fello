@@ -16,7 +16,10 @@ import {
   X,
   ZoomIn,
   Download,
-  Clock
+  Clock,
+  UserPlus,
+  Check,
+  Heart
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { sound } from '../utils/sound';
@@ -177,12 +180,32 @@ export default function ChatPage({
   partnerTyping, 
   partnerLeft,
   onTyping,
-  onReactMessage 
+  onReactMessage,
+  savedConnections = [],
+  onSaveConnection
 }) {
   const [inputText, setInputText] = useState('');
   const [showIcebreakers, setShowIcebreakers] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [selectedMsgReactionId, setSelectedMsgReactionId] = useState(null);
+  const [connectionToast, setConnectionToast] = useState(null);
+
+  const isAlreadySaved = savedConnections?.some(c => c.nickname === partner?.nickname);
+
+  const handleConnectClick = () => {
+    if (user?.isGuest) {
+      setConnectionToast('Log in or register an account to save connections!');
+      setTimeout(() => setConnectionToast(null), 3500);
+      return;
+    }
+    if (isAlreadySaved) return;
+    const success = onSaveConnection?.(partner);
+    if (success) {
+      setConnectionToast(`Connected! ${partner?.nickname || 'Stranger'} saved to Dashboard.`);
+      setTimeout(() => setConnectionToast(null), 3500);
+      confetti({ particleCount: 35, spread: 65, origin: { y: 0.15 } });
+    }
+  };
 
   // Photo & Lightbox State
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState(null);
@@ -387,6 +410,33 @@ export default function ChatPage({
       className="chat-page-root"
       onClick={() => setSelectedMsgReactionId(null)}
     >
+      {/* Floating Connection Toast */}
+      {connectionToast && (
+        <div style={{
+          position: 'fixed',
+          top: '74px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          background: 'rgba(15, 18, 28, 0.95)',
+          border: '1px solid rgba(139, 92, 246, 0.45)',
+          color: '#ffffff',
+          padding: '8px 18px',
+          borderRadius: '12px',
+          fontSize: '12.5px',
+          fontWeight: '700',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          backdropFilter: 'blur(10px)',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <Sparkles size={15} color="#c084fc" />
+          <span>{connectionToast}</span>
+        </div>
+      )}
+
       {/* Hidden File Input for Photos */}
       <input
         type="file"
@@ -427,7 +477,7 @@ export default function ChatPage({
           </div>
 
           <div style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
               <span style={{ 
                 fontWeight: '700', 
                 fontSize: '15px', 
@@ -450,6 +500,31 @@ export default function ChatPage({
               }}>
                 {partnerLeft ? 'DISCONNECTED' : 'ENCRYPTED'}
               </span>
+
+              {/* Add / Saved Connection Pill */}
+              <button
+                type="button"
+                onClick={handleConnectClick}
+                style={{
+                  fontSize: '10px',
+                  padding: '2px 7px',
+                  borderRadius: '5px',
+                  background: isAlreadySaved ? 'rgba(16,185,129,0.2)' : 'rgba(139,92,246,0.2)',
+                  border: isAlreadySaved ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(139,92,246,0.35)',
+                  color: isAlreadySaved ? '#34d399' : '#c084fc',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease'
+                }}
+                title={isAlreadySaved ? "Stranger is saved in your Dashboard" : "Add this stranger to your saved connections"}
+              >
+                {isAlreadySaved ? <Check size={11} /> : <UserPlus size={11} />}
+                <span>{isAlreadySaved ? 'Saved' : 'Connect'}</span>
+              </button>
             </div>
 
             <div className="chat-header-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#94a3b8', marginTop: '1px' }}>
@@ -986,6 +1061,28 @@ export default function ChatPage({
                 <RotateCw size={16} />
                 <span>Find Another Stranger</span>
               </button>
+
+              <button
+                type="button"
+                onClick={handleConnectClick}
+                style={{
+                  padding: '10px 18px',
+                  fontSize: '14px',
+                  borderRadius: '12px',
+                  background: isAlreadySaved ? 'rgba(16,185,129,0.2)' : 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                  border: isAlreadySaved ? '1px solid rgba(16,185,129,0.4)' : 'none',
+                  color: isAlreadySaved ? '#34d399' : '#fff',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {isAlreadySaved ? <Check size={16} /> : <UserPlus size={16} />}
+                <span>{isAlreadySaved ? 'Saved to Connections' : 'Add to Connections'}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={onLeaveChat}

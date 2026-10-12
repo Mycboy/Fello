@@ -136,6 +136,12 @@ sequenceDiagram
 - **Abrupt Termination**: Browser closing, network disruption, or page reloads trigger the socket engine's `disconnect` event.
 - **Partner Notification**: In either event, the surviving partner immediately receives `partner_left`, a synthesized audio chime plays, and a persistent notification banner offers immediate 1-click re-matching.
 
+### 5. "Add as Connection" / Reconnect System (Logged-In Accounts)
+- **Mutual Connection Saving**: Logged-in members can click **"🤝 Connect"** during or after a conversation to save a stranger to their personal connections roster.
+- **Privacy-Preserving History**: Rather than archiving sensitive chat transcripts, Fello stores only the stranger's persona (nickname, avatar, date connected) while keeping message content 100% ephemeral and destroyed.
+- **Member-Exclusive Retaining**: Guest personas receive an onboarding prompt to create an account, encouraging user conversion while protecting casual anonymous guests.
+- **Dashboard Hub**: Saved contacts appear on the user's Dashboard with one-click re-matching and contact removal.
+
 ---
 
 ## 🔒 Pillar 2: Temporary Sessions & Zero Data Retention

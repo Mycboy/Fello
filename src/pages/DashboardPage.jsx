@@ -8,7 +8,10 @@ import {
   Clock, 
   Sparkles, 
   XCircle, 
-  Lock
+  Lock,
+  UserCheck,
+  Trash2,
+  MessageSquare
 } from 'lucide-react';
 
 export default function DashboardPage({ 
@@ -19,7 +22,9 @@ export default function DashboardPage({
   onCancelSearch, 
   isSearching, 
   searchTime,
-  stats 
+  stats,
+  savedConnections = [],
+  onRemoveConnection
 }) {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editNickname, setEditNickname] = useState(user.nickname || '');
@@ -467,6 +472,136 @@ export default function DashboardPage({
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Saved Connections (Encounter History for Logged-In Accounts) */}
+          <div className="glass-panel" style={{ padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <UserCheck size={18} color="#c084fc" />
+                <h3 style={{ fontSize: '16px', margin: 0, color: '#fff' }}>Saved Connections</h3>
+              </div>
+              <span style={{
+                fontSize: '11px',
+                padding: '2px 8px',
+                borderRadius: '9999px',
+                background: user?.isGuest ? 'rgba(255,255,255,0.06)' : 'rgba(139,92,246,0.2)',
+                color: user?.isGuest ? '#94a3b8' : '#c084fc',
+                fontWeight: '700',
+                border: '1px solid rgba(255,255,255,0.08)'
+              }}>
+                {user?.isGuest ? 'Member Feature' : `${savedConnections.length} Saved`}
+              </span>
+            </div>
+
+            {user?.isGuest ? (
+              <div style={{
+                padding: '16px',
+                borderRadius: '12px',
+                background: 'rgba(139,92,246,0.08)',
+                border: '1px dashed rgba(139,92,246,0.3)',
+                textAlign: 'center'
+              }}>
+                <Lock size={22} color="#c084fc" style={{ margin: '0 auto 8px', display: 'block' }} />
+                <div style={{ fontSize: '13px', fontWeight: '700', color: '#fff', marginBottom: '4px' }}>
+                  History Locked for Guests
+                </div>
+                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '0 auto', lineHeight: 1.5, maxWidth: '280px' }}>
+                  Log in or sign up with an account to save people you meet and connect with them again in the future!
+                </p>
+              </div>
+            ) : savedConnections.length === 0 ? (
+              <div style={{
+                padding: '20px 14px',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.02)',
+                border: '1px solid rgba(255,255,255,0.05)',
+                textAlign: 'center'
+              }}>
+                <UserCheck size={24} color="#64748b" style={{ margin: '0 auto 8px', display: 'block' }} />
+                <div style={{ fontSize: '13px', fontWeight: '600', color: '#e2e8f0', marginBottom: '4px' }}>
+                  No Saved Connections Yet
+                </div>
+                <p style={{ fontSize: '11.5px', color: '#94a3b8', margin: 0, lineHeight: 1.45 }}>
+                  When you chat with a stranger, click <strong>"Connect"</strong> to save them here!
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '240px', overflowY: 'auto' }} className="no-scrollbar">
+                {savedConnections.map((conn) => (
+                  <div
+                    key={conn.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 12px',
+                      borderRadius: '12px',
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.06)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        fontSize: '18px',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: 'rgba(139,92,246,0.18)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {conn.avatar || '👻'}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#fff' }}>
+                          {conn.nickname}
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#94a3b8' }}>
+                          Met {new Date(conn.connectedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={onStartSearch}
+                        className="btn-primary"
+                        style={{
+                          padding: '5px 10px',
+                          fontSize: '11.5px',
+                          borderRadius: '8px'
+                        }}
+                        title="Enter matchmaking to find or re-match"
+                      >
+                        <MessageSquare size={12} />
+                        <span>Match</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onRemoveConnection?.(conn.id)}
+                        style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '6px 8px',
+                          color: '#fb7185',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        title="Remove from saved connections"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Safety & Protocol Card */}

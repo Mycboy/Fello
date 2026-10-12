@@ -42,6 +42,60 @@ export default function App() {
     activeChats: 12
   });
 
+  // Saved Connections / Stranger History (for logged-in accounts)
+  const [savedConnections, setSavedConnections] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('fello_user');
+      const u = savedUser ? JSON.parse(savedUser) : null;
+      if (!u || u.isGuest) return [];
+      const key = `fello_connections_${u.email || u.id || u.nickname}`;
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    if (currentUser && !currentUser.isGuest) {
+      try {
+        const key = `fello_connections_${currentUser.email || currentUser.id || currentUser.nickname}`;
+        const saved = localStorage.getItem(key);
+        setSavedConnections(saved ? JSON.parse(saved) : []);
+      } catch {}
+    } else {
+      setSavedConnections([]);
+    }
+  }, [currentUser]);
+
+  const handleSaveConnection = (partner) => {
+    if (!currentUser || currentUser.isGuest) return false;
+    const key = `fello_connections_${currentUser.email || currentUser.id || currentUser.nickname}`;
+    const newConn = {
+      id: `conn_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      nickname: partner.nickname || 'Anonymous Stranger',
+      avatar: partner.avatar || '👻',
+      connectedAt: Date.now()
+    };
+    setSavedConnections((prev) => {
+      if (prev.some((c) => c.nickname === newConn.nickname)) return prev;
+      const updated = [newConn, ...prev];
+      localStorage.setItem(key, JSON.stringify(updated));
+      return updated;
+    });
+    return true;
+  };
+
+  const handleRemoveConnection = (connId) => {
+    if (!currentUser || currentUser.isGuest) return;
+    const key = `fello_connections_${currentUser.email || currentUser.id || currentUser.nickname}`;
+    setSavedConnections((prev) => {
+      const updated = prev.filter((c) => c.id !== connId);
+      localStorage.setItem(key, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   // Socket Connection and Global Listeners
   useEffect(() => {
     socket.connect();
@@ -418,6 +472,8 @@ export default function App() {
             isSearching={isSearching}
             searchTime={searchTime}
             stats={stats}
+            savedConnections={savedConnections}
+            onRemoveConnection={handleRemoveConnection}
           />
         )}
 
@@ -434,6 +490,8 @@ export default function App() {
             partnerLeft={partnerLeft}
             onTyping={handleTyping}
             onReactMessage={handleReaction}
+            savedConnections={savedConnections}
+            onSaveConnection={handleSaveConnection}
           />
         )}
       </main>

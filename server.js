@@ -413,6 +413,18 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('receive_reaction', { messageId, reaction });
   });
 
+  // Mutual connection request between users
+  socket.on('connection_request', ({ roomId, requester }) => {
+    if (!roomId || !requester) return;
+    socket.to(roomId).emit('receive_connection_request', { requester });
+  });
+
+  // Mutual connection accepted
+  socket.on('connection_accept', ({ roomId, accepter }) => {
+    if (!roomId || !accepter) return;
+    socket.to(roomId).emit('connection_accepted', { accepter });
+  });
+
   // Typing indicator (throttled to at most once per 400ms)
   socket.on('typing', ({ roomId, isTyping }) => {
     if (!roomId) return;
