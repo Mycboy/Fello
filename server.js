@@ -3,6 +3,11 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -467,6 +472,14 @@ function handleLeaveRoom(leavingSocketId, roomId) {
 
   broadcastStats();
 }
+
+// Serve static assets from Vite build in production
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Catch-all route for SPA client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 server.listen(PORT, () => {
   console.log(`Anonymous Chat Server running on http://localhost:${PORT}`);
